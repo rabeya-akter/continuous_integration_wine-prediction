@@ -1,0 +1,24 @@
+name: wine prediction
+on: [push]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: iterative/setup-cml@v1
+      
+      - name: Train model
+        env:  # Pass the token as an environment variable
+          REPO_TOKEN: ${{ secrets.CML_TOKEN }}  # Use your secret's name
+        run: |
+          # Your ML workflow goes here
+          pip install -r requirements.txt
+          python train.py
+          echo "# Report metrics" >> report.md
+          cat metrics.txt >> report.md
+          echo "# Data visualization" >> report.md
+          echo "![](./feature_importance.png)" >> report.md 
+          echo "![](./residuals.png)" >> report.md 
+
+          # Use the token explicitly for CML commands
+          cml comment create report.md --token $REPO_TOKEN
